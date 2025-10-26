@@ -1,0 +1,37 @@
+services:
+  gitlab:
+    image: docker.io/gitlab/gitlab-ce:18.4.2-ce.0
+    container_name: gitlab
+    shm_size: '256m'
+    restart: 'unless-stopped'
+    networks:
+      frontend:
+    volumes:
+      - ./config/gitlab.rb:/etc/gitlab/gitlab.rb:ro
+      - gitlab-config:/etc/gitlab
+      - gitlab-logs:/var/log/gitlab
+      - gitlab-data:/var/opt/gitlab
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitlab-https.tls=true"
+      - "traefik.http.routers.gitlab-https.tls.certresolver=cloudflare"
+      - "traefik.http.routers.gitlab-https.entrypoints=websecure"
+      - "traefik.http.routers.gitlab-https.rule=Host(`gitlab.pd-lab.net`)"
+      - "traefik.http.services.gitlab-https.loadbalancer.server.port=80"
+
+      - traefik.tcp.routers.gitlab-ssh.rule=HostSNI(`*`)
+      - traefik.tcp.routers.gitlab-ssh.entrypoints=ssh
+      - traefik.tcp.routers.gitlab-ssh.service=gitlab-ssh
+      - traefik.tcp.services.gitlab-ssh.loadbalancer.server.port=22
+networks:
+  frontend:
+    external: true
+
+volumes:
+  gitlab-config:
+    driver: local
+  gitlab-logs:
+    driver: local
+  gitlab-data:
+    driver: local
+

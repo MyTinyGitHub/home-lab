@@ -4,14 +4,16 @@ services:
     container_name: traefik
     ports:
       - "80:80"
+      - "81:81"
       - "443:443"
+      - "444:444"
       - "22:22"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./data/certs/:/var/traefik/certs/:rw
     networks:
-      - frontend
+      - proxy
     environment:
         CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN}
     labels:
@@ -23,5 +25,5 @@ services:
       - "traefik.http.routers.api.service=api@internal"
     restart: unless-stopped
 networks:
-  frontend:
+  proxy:
     external: true

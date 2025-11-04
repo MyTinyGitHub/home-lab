@@ -7,14 +7,18 @@ api:
   dashboard: true
   insecure: true
 entryPoints:
-  web:
-    address: :80
+  http:
+    address: :81
     http:
       redirections:
         entryPoint:
           to: websecure
           scheme: https
-  websecure:
+  http-internal:
+    address: :80
+  https:
+    address: :444
+  https-internal:
     address: :443
   ssh:
     address: ":22"
